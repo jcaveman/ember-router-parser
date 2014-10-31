@@ -1,0 +1,25 @@
+{
+  "name": "ember-routes-documenter",
+  "description": "Parses ember routes to make them easy to document",
+  "version": "0.0.1",
+  "homepage": "https://github.com/soonick/ember-routes-documenter",
+  "author": {
+    "name": "Adrian Ancona Novelo",
+    "email": "soonick5@yahoo.com.mx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/soonick/ember-routes-documenter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/soonick/ember-routes-documenter/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">= 0.10"
+  },
+  "scripts": {},
+  "devDependencies": {},
+  "peerDependencies": {},
+  "dependencies": {}
+}
