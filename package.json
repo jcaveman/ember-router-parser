@@ -19,7 +19,12 @@
     "node": ">= 0.10"
   },
   "scripts": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-eslint": "^2.0.0",
+    "load-grunt-tasks": "^1.0.0"
+  },
   "peerDependencies": {},
   "dependencies": {}
 }
