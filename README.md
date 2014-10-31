@@ -21,7 +21,7 @@ And some controllers:
 
 ```JavaScript
 App.PostController = Ember.ObjectController.extend({
-  queryParams: ['awesomenessLevel', 'color'],
+  queryParams: ['awesomeness_level', 'color'],
   awesomenessLevel: null,
   color: null
 });
