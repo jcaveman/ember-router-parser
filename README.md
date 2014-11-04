@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/soonick/ember-routes-documenter.svg?branch=master)](https://travis-ci.org/soonick/ember-routes-documenter)
+
 # ember-routes-documenter
 
 ## What it does

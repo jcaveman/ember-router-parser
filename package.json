@@ -18,7 +18,9 @@
   "engines": {
     "node": ">= 0.10"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "./node_modules/grunt-cli/bin/grunt health"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
