@@ -23,5 +23,5 @@ module.exports = function(grunt) {
 
   require('load-grunt-tasks')(grunt);
 
-  grunt.registerTask('health', ['eslint']);
+  grunt.registerTask('health', ['eslint', 'mochaTest']);
 };
