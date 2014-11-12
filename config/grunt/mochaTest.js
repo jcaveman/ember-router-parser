@@ -1,5 +1,5 @@
 module.exports = {
   test: {
-    src: ['tests/unit/**/*.js']
+    src: ['tests/unit/**/*.spec.js', 'tests/integration/**/*.spec.js']
   }
 };
