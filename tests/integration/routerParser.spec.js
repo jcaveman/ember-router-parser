@@ -39,6 +39,9 @@ describe('parseRouter', function() {
     var res = routerParser.parseRouter(routerCode);
 
     var expected = {
+      hello: {
+        path: '/hello'
+      },
       helloWorld: {
         path: '/hello/world'
       }
@@ -59,6 +62,12 @@ describe('parseRouter', function() {
     var res = routerParser.parseRouter(routerCode);
 
     var expected = {
+      hello: {
+        path: '/hello'
+      },
+      helloAwesome: {
+        path: '/hello/awe/:some'
+      },
       helloAwesomeTacos: {
         path: '/hello/awe/:some/tacos'
       }
@@ -103,17 +112,59 @@ describe('parseRouter', function() {
       book: {
         path: '/foo'
       },
+      car: {
+        path: '/car'
+      },
       carNew: {
         path: '/car/new'
+      },
+      carBaz: {
+        path: '/car/baz'
       },
       carBazBoo: {
         path: '/car/baz/boo'
       },
+      carBazFizz: {
+        path: '/car/baz/fizz'
+      },
       carBazFizzDog: {
         path: '/car/baz/fizz/dog'
       },
+      cat: {
+        path: '/cat'
+      },
       catLion: {
         path: '/cat/lion'
+      }
+    };
+    assert.deepEqual(res, expected);
+  });
+
+  it('parses routes with place holders', function() {
+    var routerCode =
+      'App.Router.map(function() {' +
+        'this.resource("post", { path: "/post/:post_id" }, function() {' +
+          'this.route("edit");' +
+          'this.resource("comments", function() {' +
+            'this.route("new");' +
+          '});' +
+        '});' +
+      '});';
+
+    var res = routerParser.parseRouter(routerCode);
+
+    var expected = {
+      post: {
+        path: '/post/:post_id'
+      },
+      postEdit: {
+        path: '/post/:post_id/edit'
+      },
+      postComments: {
+        path: '/post/:post_id/comments'
+      },
+      postCommentsNew: {
+        path: '/post/:post_id/comments/new'
       }
     };
     assert.deepEqual(res, expected);

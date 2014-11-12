@@ -187,12 +187,15 @@ describe('addResource', function() {
       'this.route("edit");' +
     '});';
     var ast = esprima.parse(routerCode).body[0];
-    routerParser.parseExpressionStatement.returns('parsed');
+    routerParser.addRoute.returns('parsedRoute');
+    routerParser.parseExpressionStatement.returns('parsedExpression');
 
-    var routes = routerParser.addResource(ast, 'prefix');
+    var routes = routerParser.addResource(ast, 'prefixExpression');
 
     assert.strictEqual(routerParser.mergeObjects.args[0][0], routes);
-    assert.strictEqual(routerParser.mergeObjects.args[0][1], 'parsed');
+    assert.strictEqual(routerParser.mergeObjects.args[0][1], 'parsedRoute');
+    assert.strictEqual(routerParser.mergeObjects.args[1][0], routes);
+    assert.strictEqual(routerParser.mergeObjects.args[1][1], 'parsedExpression');
   });
 });
 
@@ -238,6 +241,34 @@ describe('addRoute', function() {
     var expected = {
       tacosHello: {
         path: '/ta/quito/hello'
+      }
+    };
+    assert.deepEqual(routes, expected);
+  });
+
+  it('parses resource with callback as route', function() {
+    var routerCode = 'this.resource("hello", function() {});';
+    var ast = esprima.parse(routerCode).body[0];
+
+    var routes = routerParser.addRoute(ast);
+
+    var expected = {
+      hello: {
+        path: '/hello'
+      }
+    };
+    assert.deepEqual(routes, expected);
+  });
+
+  it('parses rosource with path and callback as route', function() {
+    var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+    var ast = esprima.parse(routerCode).body[0];
+
+    var routes = routerParser.addRoute(ast);
+
+    var expected = {
+      hello: {
+        path: '/a'
       }
     };
     assert.deepEqual(routes, expected);
