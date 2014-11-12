@@ -4,6 +4,33 @@ var routerParser = require('../../../lib/routerParser');
 var assert = require('assert');
 var esprima = require('esprima');
 var sinon = require('sinon');
+var fs = require('fs');
+
+describe('getRoutesFromRouter', function() {
+  beforeEach(function() {
+    this.sb = sinon.sandbox.create();
+    this.sb.stub(routerParser, 'parseRouter');
+    this.sb.stub(fs, 'readFileSync');
+  });
+
+  afterEach(function() {
+    this.sb.restore();
+  });
+
+  it('calls parseRouter with the result of reading the file in the given path', function() {
+    fs.readFileSync.returns('some content');
+
+    routerParser.getRoutesFromRouter('/some/path');
+
+    assert.strictEqual(routerParser.parseRouter.args[0][0], 'some content');
+  });
+
+  it('returns result from parseRouter', function() {
+    routerParser.parseRouter.returns('parsed');
+
+    assert.strictEqual(routerParser.getRoutesFromRouter('/some/path'), 'parsed');
+  });
+});
 
 describe('parseRouter', function() {
   beforeEach(function() {

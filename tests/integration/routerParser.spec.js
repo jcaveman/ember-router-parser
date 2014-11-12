@@ -2,6 +2,28 @@
 
 var routerParser = require('../../lib/routerParser');
 var assert = require('assert');
+var path = require('path');
+
+describe('getRoutesFromRouter', function() {
+    var fixture = path.join(__dirname, 'fixtures/router.js');
+    var res = routerParser.getRoutesFromRouter(fixture);
+
+    var expected = {
+      post: {
+        path: '/post/:post_id'
+      },
+      postEdit: {
+        path: '/post/:post_id/edit'
+      },
+      postComments: {
+        path: '/post/:post_id/comments'
+      },
+      postCommentsNew: {
+        path: '/post/:post_id/comments/new'
+      }
+    };
+    assert.deepEqual(res, expected);
+});
 
 describe('parseRouter', function() {
   it('parses routes and resources correctly', function() {
