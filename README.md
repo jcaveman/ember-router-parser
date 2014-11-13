@@ -60,7 +60,7 @@ It will generate this output:
 ## How to use it
 
 ```
-node bin/documenter.js router [routes]
+node bin/documenter.js router=<router> [routes=<routes>]
 ```
 
 **router** - Path to the router we will document
