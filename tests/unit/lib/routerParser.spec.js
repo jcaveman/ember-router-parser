@@ -11,6 +11,7 @@ describe('getRoutesFromRouter', function() {
     this.sb = sinon.sandbox.create();
     this.sb.stub(routerParser, 'parseRouter');
     this.sb.stub(fs, 'readFileSync');
+    this.sb.stub(console, 'error');
   });
 
   afterEach(function() {
@@ -29,6 +30,14 @@ describe('getRoutesFromRouter', function() {
     routerParser.parseRouter.returns('parsed');
 
     assert.strictEqual(routerParser.getRoutesFromRouter('/some/path'), 'parsed');
+  });
+
+  it('logs error if unable to open file', function() {
+    fs.readFileSync.throws();
+
+    routerParser.getRoutesFromRouter('hello');
+
+    assert.ok(console.error.calledOnce);
   });
 });
 
