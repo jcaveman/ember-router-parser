@@ -1,10 +1,17 @@
 'use strict';
 
-var routerParser = require('../../../lib/routerParser');
 var assert = require('assert');
 var esprima = require('esprima');
-var sinon = require('sinon');
 var fs = require('fs');
+var proxyquire = require('proxyquire');
+var sinon = require('sinon');
+
+var Comments = sinon.stub();
+
+var routerParser = proxyquire('../../../lib/routerParser', {
+  './models/Comments': Comments
+});
+
 
 describe('getRoutesFromRouter', function() {
   beforeEach(function() {
@@ -70,6 +77,31 @@ describe('parseRouter', function() {
     routerParser.parseRouter(routerCode);
 
     assert.strictEqual(routerParser.parseExpressionStatement.callCount, 2);
+  });
+
+  it('saves passed options', function() {
+    var options = {some: 'option'};
+
+    routerParser.parseRouter('someRouterCode', options);
+
+    assert.strictEqual(routerParser.options, options);
+  });
+
+  it('creates an instance of Comments if onlyAnnotated option is given', function() {
+    var options = {
+      onlyAnnotated: true
+    };
+    var routerCode =
+      'App.Router.map(function() {' +
+        '// hello\n' +
+        'this.route("hello");' +
+        'this.resource("world");' +
+      '});';
+    var ast = esprima.parse(routerCode, {comment: true, range: true});
+
+    routerParser.parseRouter(routerCode, options);
+
+    assert.deepEqual(Comments.args[0][0], ast.comments);
   });
 });
 
@@ -314,11 +346,9 @@ describe('addRoute', function() {
 describe('getRouterMapBody', function() {
   it('returns undefined if map is not found', function() {
     var routerCode =
-      'import Ember from "ember";' +
       'var Router = Ember.Router.extend({' +
         'location: FooENV.locationType' +
-      '});' +
-      'export default Router;';
+      '});';
     var ast = esprima.parse(routerCode);
 
     var map = routerParser.getRouterMapBody(ast);
@@ -328,12 +358,10 @@ describe('getRouterMapBody', function() {
 
   it('returns map body if found', function() {
     var routerCode =
-      'import Ember from "ember";' +
       'var Router = Ember.Router.extend({' +
         'location: FooENV.locationType' +
       '});' +
-      'Router.map(function() {});' +
-      'export default Router;';
+      'Router.map(function() {});';
     var ast = esprima.parse(routerCode);
 
     var map = routerParser.getRouterMapBody(ast);
