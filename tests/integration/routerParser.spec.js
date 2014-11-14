@@ -99,7 +99,6 @@ describe('parseRouter', function() {
 
   it('parses complete router code', function() {
     var routerCode =
-      'import Ember from "ember";' +
       'var Router = Ember.Router.extend({' +
         'location: FooENV.locationType' +
       '});' +
@@ -119,8 +118,7 @@ describe('parseRouter', function() {
         'this.resource("cat", function() {' +
           'this.route("lion")' +
         '})' +
-      '});' +
-      'export default Router;';
+      '});';
 
     var res = routerParser.parseRouter(routerCode);
 
