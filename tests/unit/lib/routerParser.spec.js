@@ -268,6 +268,13 @@ describe('addResource', function() {
 });
 
 describe('addRoute', function() {
+  beforeEach(function() {
+    routerParser.options = {};
+    routerParser.comments = {
+      shouldDocumentRoute: sinon.stub()
+    };
+  });
+
   it('parses route', function() {
     var routerCode = 'this.route("hello");';
     var ast = esprima.parse(routerCode).body[0];
@@ -329,6 +336,32 @@ describe('addRoute', function() {
   });
 
   it('parses rosource with path and callback as route', function() {
+    var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+    var ast = esprima.parse(routerCode).body[0];
+
+    var routes = routerParser.addRoute(ast);
+
+    var expected = {
+      hello: {
+        path: '/a'
+      }
+    };
+    assert.deepEqual(routes, expected);
+  });
+
+  it('doesn\'t add route if shouldDocumentRoute returns false', function() {
+    routerParser.options.onlyAnnotated = true;
+    var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+    var ast = esprima.parse(routerCode).body[0];
+
+    var routes = routerParser.addRoute(ast);
+
+    assert.deepEqual(routes, {});
+  });
+
+  it('adds route if shouldDocumentRoute returns true', function() {
+    routerParser.options.onlyAnnotated = true;
+    routerParser.comments.shouldDocumentRoute.returns(true);
     var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
     var ast = esprima.parse(routerCode).body[0];
 

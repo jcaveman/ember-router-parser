@@ -189,4 +189,66 @@ describe('parseRouter', function() {
     };
     assert.deepEqual(res, expected);
   });
+
+  it('parses only annotated routes and resources', function() {
+    var routerCode =
+      'App.Router.map(function() {' +
+        '/**\n' +
+        ' * @documentUrl\n' +
+        ' */\n' +
+        'this.resource("hello");' +
+        '// @documentUrl\n' +
+        'this.route("dog", {path: "/cat"});' +
+        '// @cccc\n' +
+        'this.route("horse");' +
+        'this.route("chicken");' +
+      '});';
+    var options = {
+      onlyAnnotated: true
+    };
+
+    var res = routerParser.parseRouter(routerCode, options);
+
+    var expected = {
+      hello: {
+        path: '/hello'
+      },
+      dog: {
+        path: '/cat'
+      }
+    };
+    assert.deepEqual(res, expected);
+  });
+
+  it('parses only annotated routes and resources when nested', function() {
+    var routerCode =
+      'App.Router.map(function() {' +
+        '// hello, can you @documentUrl\n' +
+        'this.resource("post", { path: "/post/:post_id" }, function() {' +
+          'this.route("edit");' +
+          'this.resource("comments", function() {' +
+            '/**' +
+            ' * @documentUrl' +
+            ' */' +
+            'this.route("new");' +
+            'this.route("mocos");' +
+          '});' +
+        '});' +
+      '});';
+    var options = {
+      onlyAnnotated: true
+    };
+
+    var res = routerParser.parseRouter(routerCode, options);
+
+    var expected = {
+      post: {
+        path: '/post/:post_id'
+      },
+      postCommentsNew: {
+        path: '/post/:post_id/comments/new'
+      }
+    };
+    assert.deepEqual(res, expected);
+  });
 });
