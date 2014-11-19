@@ -12,9 +12,14 @@ var helpers = {
   mergeObjects: sinon.stub()
 };
 
+var esprimaHelpers = {
+  getPropertyValue: sinon.stub()
+};
+
 var routerParser = proxyquire('../../../lib/routerParser', {
   './models/Comments': Comments,
-  './helpers/helpers': helpers
+  './helpers/helpers': helpers,
+  './helpers/esprimaHelpers': esprimaHelpers
 });
 
 
@@ -280,6 +285,10 @@ describe('addRoute', function() {
     };
   });
 
+  afterEach(function() {
+    esprimaHelpers.getPropertyValue.reset();
+  });
+
   it('parses route', function() {
     var routerCode = 'this.route("hello");';
     var ast = esprima.parse(routerCode).body[0];
@@ -297,6 +306,8 @@ describe('addRoute', function() {
   it('parses route with path', function() {
     var routerCode = 'this.route("hello", {asdf: "qwer", path: "/some/path"});';
     var ast = esprima.parse(routerCode).body[0];
+    var args = ast.expression.arguments;
+    esprimaHelpers.getPropertyValue.withArgs(args[1], 'path').returns('/some/path');
 
     var routes = routerParser.addRoute(ast);
 
@@ -343,6 +354,8 @@ describe('addRoute', function() {
   it('parses rosource with path and callback as route', function() {
     var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
     var ast = esprima.parse(routerCode).body[0];
+    var args = ast.expression.arguments;
+    esprimaHelpers.getPropertyValue.withArgs(args[1], 'path').returns('/a');
 
     var routes = routerParser.addRoute(ast);
 
@@ -411,11 +424,11 @@ describe('getRouterMapBody', function() {
 describe('buildPrefix', function() {
   beforeEach(function() {
     this.sb = sinon.sandbox.create();
-    this.sb.stub(routerParser, 'getPropertyValue');
   });
 
   afterEach(function() {
     this.sb.restore();
+    esprimaHelpers.getPropertyValue.reset();
   });
 
   it('uses value if there is no previous prefix and path', function() {
@@ -434,7 +447,7 @@ describe('buildPrefix', function() {
   it('uses path if there was one specified', function() {
     var routerCode = 'this.route("hello", {path: "/a/b"});';
     var ast = esprima.parse(routerCode).body[0];
-    routerParser.getPropertyValue.returns('/a/b');
+    esprimaHelpers.getPropertyValue.returns('/a/b');
 
     var newPrefix = routerParser.buildPrefix(ast);
 
@@ -450,7 +463,7 @@ describe('buildPrefix', function() {
       'this.route("asdf");' +
     '});';
     var ast = esprima.parse(routerCode).body[0];
-    routerParser.getPropertyValue.returns('/a/b');
+    esprimaHelpers.getPropertyValue.returns('/a/b');
 
     var newPrefix = routerParser.buildPrefix(ast);
 
@@ -477,25 +490,5 @@ describe('buildPrefix', function() {
       path: '/sanchez/hello'
     };
     assert.deepEqual(newPrefix, expected);
-  });
-});
-
-describe('getPropertyValue', function() {
-  it('returns value of the property if found', function() {
-    var object = 'var a = {hello: "world", bye: "universe"}';
-    var ast = esprima.parse(object).body[0].declarations[0].init;
-
-    var actual = routerParser.getPropertyValue(ast, 'bye');
-
-    assert.strictEqual(actual, 'universe');
-  });
-
-  it('returns undefined if property not found', function() {
-    var object = 'var a = {hello: "world", bye: "universe"}';
-    var ast = esprima.parse(object).body[0].declarations[0].init;
-
-    var actual = routerParser.getPropertyValue(ast, 'no');
-
-    assert.ok(!actual);
   });
 });
