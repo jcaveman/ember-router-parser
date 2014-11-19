@@ -8,8 +8,13 @@ var sinon = require('sinon');
 
 var Comments = sinon.stub();
 
+var helpers = {
+  mergeObjects: sinon.stub()
+};
+
 var routerParser = proxyquire('../../../lib/routerParser', {
-  './models/Comments': Comments
+  './models/Comments': Comments,
+  './helpers/helpers': helpers
 });
 
 
@@ -157,11 +162,11 @@ describe('addResource', function() {
     this.sb.stub(routerParser, 'addRoute');
     this.sb.stub(routerParser, 'parseExpressionStatement');
     this.sb.stub(routerParser, 'buildPrefix');
-    this.sb.stub(routerParser, 'mergeObjects');
   });
 
   afterEach(function() {
     this.sb.restore();
+    helpers.mergeObjects.reset();
   });
 
   it('uses addRoute to parse resource with no callback', function() {
@@ -260,10 +265,10 @@ describe('addResource', function() {
 
     var routes = routerParser.addResource(ast, 'prefixExpression');
 
-    assert.strictEqual(routerParser.mergeObjects.args[0][0], routes);
-    assert.strictEqual(routerParser.mergeObjects.args[0][1], 'parsedRoute');
-    assert.strictEqual(routerParser.mergeObjects.args[1][0], routes);
-    assert.strictEqual(routerParser.mergeObjects.args[1][1], 'parsedExpression');
+    assert.strictEqual(helpers.mergeObjects.args[0][0], routes);
+    assert.strictEqual(helpers.mergeObjects.args[0][1], 'parsedRoute');
+    assert.strictEqual(helpers.mergeObjects.args[1][0], routes);
+    assert.strictEqual(helpers.mergeObjects.args[1][1], 'parsedExpression');
   });
 });
 
@@ -492,27 +497,5 @@ describe('getPropertyValue', function() {
     var actual = routerParser.getPropertyValue(ast, 'no');
 
     assert.ok(!actual);
-  });
-});
-
-describe('mergeObjects', function() {
-  it('copies all keys from o2 to o1', function() {
-    var o1 = {
-      hello: 'world',
-      bye: 'adrian'
-    };
-    var o2 = {
-      bye: 'jose',
-      taco: 'salsa'
-    };
-
-    routerParser.mergeObjects(o1, o2);
-
-    var expected = {
-      hello: 'world',
-      bye: 'jose',
-      taco: 'salsa'
-    };
-    assert.deepEqual(o1, expected);
   });
 });
