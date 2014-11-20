@@ -16,6 +16,7 @@
     "describe": false,
     "it": false,
     "beforeEach": false,
-    "afterEach": false
+    "afterEach": false,
+    "App": true
   }
 }

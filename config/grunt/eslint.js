@@ -4,6 +4,7 @@ module.exports = {
     'config/grunt',
     'bin',
     'lib',
-    'tests/unit'
+    'tests/unit',
+    'tests/integration'
   ]
 };
