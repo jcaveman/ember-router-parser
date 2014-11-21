@@ -67,6 +67,7 @@ describe('parseRouter', function() {
 
   afterEach(function() {
     this.sb.restore();
+    Comments.reset();
   });
 
   it('returns null if getRouterMapBody returns null', function() {
@@ -97,10 +98,7 @@ describe('parseRouter', function() {
     assert.strictEqual(routerParser.options, options);
   });
 
-  it('creates an instance of Comments if onlyAnnotated option is given', function() {
-    var options = {
-      onlyAnnotated: true
-    };
+  it('creates an instance of Comments', function() {
     var routerCode =
       'App.Router.map(function() {' +
         '// hello\n' +
@@ -109,7 +107,7 @@ describe('parseRouter', function() {
       '});';
     var ast = esprima.parse(routerCode, {comment: true, range: true});
 
-    routerParser.parseRouter(routerCode, options);
+    routerParser.parseRouter(routerCode);
 
     assert.deepEqual(Comments.args[0][0], ast.comments);
   });

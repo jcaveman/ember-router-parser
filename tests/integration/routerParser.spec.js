@@ -196,7 +196,7 @@ describe('parseRouter', function() {
         '/**\n' +
         ' * @documentUrl\n' +
         ' */\n' +
-        'this.resource("hello");' +
+        'this.resource("hello");\n' +
         '// @documentUrl\n' +
         'this.route("dog", {path: "/cat"});' +
         '// @cccc\n' +
