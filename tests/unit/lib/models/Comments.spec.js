@@ -31,9 +31,9 @@ describe('Comments', function() {
     it('formats param values into comments array', function() {
       comments.parse.returnsArg(0);
       var c = [
-        {value: '*\n * @documenturl\n ', range: [27, 50]},
-        {value: ' @documenturl', range: [74, 89]},
-        {value: ' @cccc', range: [124, 132]}
+        {value: '*\n * @documenturl\n ', loc: {end: {line: 50}}},
+        {value: ' @documenturl', loc: {end: {line: 89}}},
+        {value: ' @cccc', loc: {end: {line: 132}}}
       ];
 
       comments.format(c);
@@ -126,10 +126,13 @@ describe('Comments', function() {
   });
 
   describe('shouldDocumentRoute', function() {
-    it('returns false if expression range doesn\'t match route', function() {
+    it('returns false if expression start line doesn\'t match comment', function() {
       comments.comments = {};
 
-      assert.strictEqual(comments.shouldDocumentRoute({range: [35]}), false);
+      assert.strictEqual(
+        comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
+        false
+      );
     });
 
     it('returns false if no @documentUrl annotation in comment', function() {
@@ -140,7 +143,10 @@ describe('Comments', function() {
         }
       };
 
-      assert.strictEqual(comments.shouldDocumentRoute({range: [35]}), false);
+      assert.strictEqual(
+        comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
+        false
+      );
     });
 
     it('returns true if @documentUrl in comment', function() {
@@ -153,20 +159,10 @@ describe('Comments', function() {
         }
       };
 
-      assert.strictEqual(comments.shouldDocumentRoute({range: [35]}), true);
-    });
-
-    it('returns true if @documentUrl in comment and exact index match', function() {
-      comments.comments = {
-        35: {
-          main: 'hello',
-          annotations: {
-            'documentUrl': ''
-          }
-        }
-      };
-
-      assert.strictEqual(comments.shouldDocumentRoute({range: [35]}), true);
+      assert.strictEqual(
+        comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
+        true
+      );
     });
   });
 });

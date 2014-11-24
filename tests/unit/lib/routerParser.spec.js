@@ -105,7 +105,7 @@ describe('routerParser', function() {
           'this.route("hello");' +
           'this.resource("world");' +
         '});';
-      var ast = esprima.parse(routerCode, {comment: true, range: true});
+      var ast = esprima.parse(routerCode, {comment: true, loc: true});
 
       routerParser.parseRouter(routerCode);
 

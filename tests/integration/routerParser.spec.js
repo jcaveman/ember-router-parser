@@ -223,19 +223,19 @@ describe('routerParser(integration)', function() {
 
     it('parses only annotated routes and resources when nested', function() {
       var routerCode =
-        'App.Router.map(function() {' +
+        'App.Router.map(function() {\n' +
           '// hello, can you @documentUrl\n' +
-          'this.resource("post", { path: "/post/:post_id" }, function() {' +
-            'this.route("edit");' +
-            'this.resource("comments", function() {' +
-              '/**' +
-              ' * @documentUrl' +
-              ' */' +
-              'this.route("new");' +
-              'this.route("mocos");' +
-            '});' +
-          '});' +
-        '});';
+          'this.resource("post", { path: "/post/:post_id" }, function() {\n' +
+            'this.route("edit");\n' +
+            'this.resource("comments", function() {\n' +
+              '/**\n' +
+              ' * @documentUrl\n' +
+              ' */\n' +
+              'this.route("new");\n' +
+              'this.route("mocos");\n' +
+            '});\n' +
+          '});\n' +
+        '});\n';
       var options = {
         onlyAnnotated: true
       };
