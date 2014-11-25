@@ -8,8 +8,13 @@ var routerParser = {
   getRoutesFromRouter: sinon.stub()
 };
 
+var fs = {
+  writeFileSync: sinon.stub()
+};
+
 var emberRoutesDocumenter = proxyquire('../../../lib/emberRoutesDocumenter', {
-  './routerParser': routerParser
+  './routerParser': routerParser,
+  'fs': fs
 });
 
 describe('emberRoutesDocumenter', function() {
@@ -20,7 +25,8 @@ describe('emberRoutesDocumenter', function() {
 
     afterEach(function() {
       emberRoutesDocumenter.getArgs.restore();
-      routerParser.getRoutesFromRouter.reset();
+      routerParser.getRoutesFromRouter.returns().reset();
+      fs.writeFileSync.returns().reset();
     });
 
     it('calls getRoutesFromRouter with given router', function() {
@@ -31,6 +37,24 @@ describe('emberRoutesDocumenter', function() {
       emberRoutesDocumenter.main();
 
       assert.strictEqual(routerParser.getRoutesFromRouter.args[0][0], 'router.js');
+    });
+
+    it('writes documentation to file', function() {
+      emberRoutesDocumenter.getArgs.returns({});
+      routerParser.getRoutesFromRouter.returns('parsedRouter');
+
+      emberRoutesDocumenter.main();
+
+      var expected = ['routes_doc.json', JSON.stringify('parsedRouter')];
+      assert.deepEqual(fs.writeFileSync.args[0], expected);
+    });
+
+    it('doesn\'t write to file if getRoutesFromRouter returns undefined', function() {
+      emberRoutesDocumenter.getArgs.returns({});
+
+      emberRoutesDocumenter.main();
+
+      assert.strictEqual(fs.writeFileSync.called, false);
     });
   });
 
