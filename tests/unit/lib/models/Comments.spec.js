@@ -125,10 +125,25 @@ describe('Comments', function() {
     });
   });
 
-  describe('shouldDocumentRoute', function() {
-    it('returns false if expression start line doesn\'t match comment', function() {
-      comments.comments = {};
+  describe('parseParam', function() {
+    it('returns array with param and value', function() {
+      var parsed = comments.parseParam('param taquitos con frijolito');
 
+      var expected = ['taquitos', 'con frijolito'];
+      assert.deepEqual(parsed, expected);
+    });
+  });
+
+  describe('shouldDocumentRoute', function() {
+    beforeEach(function() {
+      sinon.stub(comments, 'getExpressionComment').returns({});
+    });
+
+    afterEach(function() {
+      comments.getExpressionComment.restore();
+    });
+
+    it('returns false if expression start line doesn\'t match comment', function() {
       assert.strictEqual(
         comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
         false
@@ -136,12 +151,11 @@ describe('Comments', function() {
     });
 
     it('returns false if no @documentUrl annotation in comment', function() {
-      comments.comments = {
-        34: {
-          main: 'hello',
-          annotations: {}
-        }
+      var comment = {
+        main: 'hello',
+        annotations: {}
       };
+      comments.getExpressionComment.returns(comment);
 
       assert.strictEqual(
         comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
@@ -150,6 +164,30 @@ describe('Comments', function() {
     });
 
     it('returns true if @documentUrl in comment', function() {
+      var comment = {
+        main: 'hello',
+        annotations: {
+          'documentUrl': ''
+        },
+        params: {}
+      };
+      comments.getExpressionComment.returns(comment);
+
+      assert.strictEqual(comments.shouldDocumentRoute({range: [35]}), true);
+    });
+  });
+
+  describe('getExpressionComment', function() {
+    it('returns empty object if no comment for expression', function() {
+      comments.comments = {};
+
+      assert.deepEqual(
+        comments.getExpressionComment({loc: {start: {line: 35}}}),
+        {}
+      );
+    });
+
+    it('returns comment if there is a comment for the expression', function() {
       comments.comments = {
         34: {
           main: 'hello',
@@ -160,8 +198,8 @@ describe('Comments', function() {
       };
 
       assert.strictEqual(
-        comments.shouldDocumentRoute({loc: {start: {line: 35}}}),
-        true
+        comments.getExpressionComment({loc: {start: {line: 35}}}),
+        comments.comments['34']
       );
     });
   });

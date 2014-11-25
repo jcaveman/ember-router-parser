@@ -277,14 +277,18 @@ describe('routerParser', function() {
 
   describe('addRoute', function() {
     beforeEach(function() {
-      routerParser.options = {};
+      routerParser.options = {
+        onlyAnnotated: false
+      };
       routerParser.comments = {
-        shouldDocumentRoute: sinon.stub()
+        shouldDocumentRoute: sinon.stub(),
+        getExpressionComment: sinon.stub().returns({})
       };
     });
 
     afterEach(function() {
       esprimaHelpers.getPropertyValue.reset();
+      helpers.mergeObjects.reset();
     });
 
     it('parses route', function() {
@@ -390,6 +394,57 @@ describe('routerParser', function() {
       };
       assert.deepEqual(routes, expected);
     });
+
+    it('doesn\'nt add comment attributes if there is no comment', function() {
+      var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+      var ast = esprima.parse(routerCode).body[0];
+
+      var routes = routerParser.addRoute(ast);
+
+      assert.strictEqual(routes.doc, undefined);
+    });
+
+    it('adds comment information if there is a comment', function() {
+      var comments = {
+        main: 'Hello',
+        params: {
+          hello: 'world'
+        }
+      };
+      routerParser.comments.getExpressionComment.returns(comments);
+      var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+      var ast = esprima.parse(routerCode).body[0];
+
+      var routes = routerParser.addRoute(ast);
+
+      assert.strictEqual(routes.hello.doc, 'Hello');
+      assert.strictEqual(routes.hello.params, comments.params);
+    });
+
+    it('adds comment information if there is a comment and prefix', function() {
+      var prefix = {
+        name: 'hola',
+        params: {
+          perro: 'gato'
+        }
+      };
+      var comments = {
+        main: 'Hello',
+        params: {
+          hello: 'world'
+        }
+      };
+      routerParser.comments.getExpressionComment.returns(comments);
+      var routerCode = 'this.resource("hello", {path: "/a"}, function() {});';
+      var ast = esprima.parse(routerCode).body[0];
+
+      var routes = routerParser.addRoute(ast, prefix);
+
+      assert.strictEqual(routes.holaHello.doc, 'Hello');
+      assert.strictEqual(routes.holaHello.params.perro, 'gato');
+      assert.strictEqual(helpers.mergeObjects.args[0][0], prefix.params);
+      assert.strictEqual(helpers.mergeObjects.args[0][1], comments.params);
+    });
   });
 
   describe('getRouterMapBody', function() {
@@ -421,12 +476,15 @@ describe('routerParser', function() {
 
   describe('buildPrefix', function() {
     beforeEach(function() {
-      this.sb = sinon.sandbox.create();
+      routerParser.comments = {
+        getExpressionComment: sinon.stub().returns({})
+      };
     });
 
     afterEach(function() {
-      this.sb.restore();
+      delete routerParser.comments;
       esprimaHelpers.getPropertyValue.reset();
+      helpers.mergeObjects.reset();
     });
 
     it('uses value if there is no previous prefix and path', function() {
@@ -435,11 +493,8 @@ describe('routerParser', function() {
 
       var newPrefix = routerParser.buildPrefix(ast);
 
-      var expected = {
-        name: 'hello',
-        path: '/hello'
-      };
-      assert.deepEqual(newPrefix, expected);
+      assert.strictEqual(newPrefix.name, 'hello');
+      assert.strictEqual(newPrefix.path, '/hello');
     });
 
     it('uses path if there was one specified', function() {
@@ -449,11 +504,8 @@ describe('routerParser', function() {
 
       var newPrefix = routerParser.buildPrefix(ast);
 
-      var expected = {
-        name: 'hello',
-        path: '/a/b'
-      };
-      assert.deepEqual(newPrefix, expected);
+      assert.strictEqual(newPrefix.name, 'hello');
+      assert.strictEqual(newPrefix.path, '/a/b');
     });
 
     it('uses path if there is a path and a callback', function() {
@@ -465,15 +517,11 @@ describe('routerParser', function() {
 
       var newPrefix = routerParser.buildPrefix(ast);
 
-      var expected = {
-        name: 'hello',
-        path: '/a/b'
-      };
-      assert.deepEqual(newPrefix, expected);
-
+      assert.strictEqual(newPrefix.name, 'hello');
+      assert.strictEqual(newPrefix.path, '/a/b');
     });
 
-    it('extends previous prefix values if they existed', function() {
+    it('extends previous prefix values if they exist', function() {
       var routerCode = 'this.route("hello");';
       var ast = esprima.parse(routerCode).body[0];
       var prefix = {
@@ -483,11 +531,42 @@ describe('routerParser', function() {
 
       var newPrefix = routerParser.buildPrefix(ast, prefix);
 
-      var expected = {
-        name: 'joseHello',
-        path: '/sanchez/hello'
+      assert.strictEqual(newPrefix.name, 'joseHello');
+      assert.strictEqual(newPrefix.path, '/sanchez/hello');
+    });
+
+    it('adds expression params when there are no params in prefix', function() {
+      var routerCode = 'this.route("hello");';
+      var ast = esprima.parse(routerCode).body[0];
+      routerParser.comments.getExpressionComment.returns({params: 'params'});
+
+      var newPrefix = routerParser.buildPrefix(ast, {});
+
+      assert.strictEqual(newPrefix.params, 'params');
+    });
+
+    it('merges expression params and prefix params when there are params in prefix', function() {
+      var routerCode = 'this.route("hello");';
+      var ast = esprima.parse(routerCode).body[0];
+      var prefix = {
+        name: 'tacos',
+        path: '/tacos',
+        params: {
+          taquitos: 'Con frijolito'
+        }
       };
-      assert.deepEqual(newPrefix, expected);
+      var comments = {
+        params: {
+          cerveza: 'Por favor'
+        }
+      };
+      routerParser.comments.getExpressionComment.returns(comments);
+
+      var newPrefix = routerParser.buildPrefix(ast, prefix);
+
+      assert.strictEqual(newPrefix.params, prefix.params);
+      assert.strictEqual(helpers.mergeObjects.args[0][0], prefix.params);
+      assert.strictEqual(helpers.mergeObjects.args[0][1], comments.params);
     });
   });
 });

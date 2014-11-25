@@ -6,6 +6,7 @@ var path = require('path');
 
 describe('routerParser(integration)', function() {
   describe('getRoutesFromRouter', function() {
+    it('parses router from file', function() {
       var fixture = path.join(__dirname, 'fixtures/router.js');
       var res = routerParser.getRoutesFromRouter(fixture);
 
@@ -24,6 +25,7 @@ describe('routerParser(integration)', function() {
         }
       };
       assert.deepEqual(res, expected);
+    });
   });
 
   describe('parseRouter', function() {
@@ -210,15 +212,10 @@ describe('routerParser(integration)', function() {
 
       var res = routerParser.parseRouter(routerCode, options);
 
-      var expected = {
-        hello: {
-          path: '/hello'
-        },
-        dog: {
-          path: '/cat'
-        }
-      };
-      assert.deepEqual(res, expected);
+      assert.strictEqual(res.horse, undefined);
+      assert.strictEqual(res.chicken, undefined);
+      assert.strictEqual(res.hello.path, '/hello');
+      assert.strictEqual(res.dog.path, '/cat');
     });
 
     it('parses only annotated routes and resources when nested', function() {
@@ -242,15 +239,69 @@ describe('routerParser(integration)', function() {
 
       var res = routerParser.parseRouter(routerCode, options);
 
-      var expected = {
-        post: {
-          path: '/post/:post_id'
-        },
-        postCommentsNew: {
-          path: '/post/:post_id/comments/new'
-        }
-      };
-      assert.deepEqual(res, expected);
+      assert.strictEqual(res.postEdit, undefined);
+      assert.strictEqual(res.postCommentsMocos, undefined);
+      assert.strictEqual(res.post.path, '/post/:post_id');
+      assert.strictEqual(res.postCommentsNew.path, '/post/:post_id/comments/new');
     });
+  });
+
+  it('parses route comments', function() {
+    var routerCode =
+      'App.Router.map(function() {\n' +
+      '  /**\n' +
+      '   * This route will give you a nice page with a blog post\n' +
+      '   * @param post_id Id of the post you want to see\n' +
+      '   */\n' +
+      '  this.resource("post", { path: "/post/:post_id" }, function() {\n' +
+      '    /**\n' +
+      '     * Edit a blog post\n' +
+      '     */\n' +
+      '    this.route("edit");\n' +
+      '    /**\n' +
+      '     * View comments from a blog post\n' +
+      '     */\n' +
+      '    this.resource("comments", function() {\n' +
+      '      /**\n' +
+      '       * Create a new comment on a blog post\n' +
+      '       */\n' +
+      '      this.route("new");\n' +
+      '    });\n' +
+      '  });\n' +
+      '});';
+
+    var res = routerParser.parseRouter(routerCode);
+
+    var expected = {
+      'post': {
+        'path': '/post/:post_id',
+        'doc': 'This route will give you a nice page with a blog post',
+        'params': {
+          'post_id': 'Id of the post you want to see'
+        }
+      },
+      'postEdit': {
+        'path': '/post/:post_id/edit',
+        'doc': 'Edit a blog post',
+        'params': {
+          'post_id': 'Id of the post you want to see'
+        }
+      },
+      'postComments': {
+        'path': '/post/:post_id/comments',
+        'doc': 'View comments from a blog post',
+        'params': {
+          'post_id': 'Id of the post you want to see'
+        }
+      },
+      'postCommentsNew': {
+        'path': '/post/:post_id/comments/new',
+        'doc': 'Create a new comment on a blog post',
+        'params': {
+          'post_id': 'Id of the post you want to see'
+        }
+      }
+    };
+    assert.deepEqual(res, expected);
   });
 });
