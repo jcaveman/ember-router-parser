@@ -12,9 +12,14 @@ var fs = {
   writeFileSync: sinon.stub()
 };
 
+var path = {
+  resolve: sinon.stub()
+};
+
 var emberRoutesDocumenter = proxyquire('../../../lib/emberRoutesDocumenter', {
   './routerParser': routerParser,
-  'fs': fs
+  'fs': fs,
+  'path': path
 });
 
 describe('emberRoutesDocumenter', function() {
@@ -27,16 +32,21 @@ describe('emberRoutesDocumenter', function() {
       emberRoutesDocumenter.getArgs.restore();
       routerParser.getRoutesFromRouter.returns().reset();
       fs.writeFileSync.returns().reset();
+      path.resolve.reset();
     });
 
     it('calls getRoutesFromRouter with given router', function() {
       emberRoutesDocumenter.getArgs.returns({
         router: 'router.js'
       });
+      path.resolve.withArgs('router.js').returns('/something/router.js');
 
       emberRoutesDocumenter.main();
 
-      assert.strictEqual(routerParser.getRoutesFromRouter.args[0][0], 'router.js');
+      assert.strictEqual(
+        routerParser.getRoutesFromRouter.args[0][0],
+        '/something/router.js'
+      );
     });
 
     it('writes documentation to file', function() {
