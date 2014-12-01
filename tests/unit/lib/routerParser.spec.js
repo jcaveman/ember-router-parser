@@ -49,12 +49,13 @@ describe('routerParser', function() {
       assert.strictEqual(routerParser.getRoutesFromRouter('/some/path'), 'parsed');
     });
 
-    it('logs error if unable to open file', function() {
-      fs.readFileSync.throws();
+    it('logs error if unable to open or parse file', function() {
+      var exception = {error: 'something'};
+      fs.readFileSync.throws(exception);
 
       routerParser.getRoutesFromRouter('hello');
 
-      assert.ok(console.error.calledOnce);
+      assert.strictEqual(console.error.args[0][0], exception);
     });
   });
 
