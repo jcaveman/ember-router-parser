@@ -8,9 +8,7 @@ file and returns all of the routes in jSON format.
 ## How to use it
 
 ```
-node bin/parser.js router=<router>
+node bin/parser.js router={path to router}
 ```
-
-**router** - Path to the router we will document
 
 It will generate a file called **routes_doc.json** in the current folder
