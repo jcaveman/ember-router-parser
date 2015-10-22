@@ -1,8 +1,8 @@
-# ember-routes-parse
+# ember-router-parse
 
 ## What it does
 
-Forked from ember-routes-documenter, ember-routes-parser parses an Ember router
+Forked from ember-routes-documenter, ember-router-parser parses an Ember router
 file and returns all of the routes in jSON format.
 
 ## How to use it
