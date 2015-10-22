@@ -13,4 +13,4 @@ node bin/parser.js router={path to router}
 
 It will generate a file called **routes_doc.json** in the current folder
 
-### TODO: Does not current include @params in parsed jSON. 
+#### TODO: Does not currently include @params in parsed jSON. 
