@@ -1,18 +1,18 @@
 {
-  "name": "ember-routes-documenter",
-  "description": "Parses ember routes to make them easy to document",
+  "name": "ember-routes-parser",
+  "description": "Parses ember routes into jSON",
   "version": "0.0.1",
-  "homepage": "https://github.com/soonick/ember-routes-documenter",
+  "homepage": "https://github.com/jcaveman/ember-routes-parser",
   "author": {
-    "name": "Adrian Ancona Novelo",
-    "email": "soonick5@yahoo.com.mx"
+    "name": "Jon Caveman",
+    "email": "jon@joncaveman.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/soonick/ember-routes-documenter.git"
+    "url": "git://github.com/jcaveman/ember-routes-parser.git"
   },
   "bugs": {
-    "url": "https://github.com/soonick/ember-routes-documenter/issues"
+    "url": "https://github.com/jcaveman/ember-routes-parser/issues"
   },
   "license": "MIT",
   "engines": {
