@@ -1,3 +1,3 @@
-var emberRouterParser = require('../lib/emberRouterParser');
+var emberRoutesParser = require('../lib/emberRoutesParser');
 
-emberRouterParser.main();
+emberRoutesParser.main();

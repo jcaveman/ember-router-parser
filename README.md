@@ -1,4 +1,4 @@
-# ember-router-parser
+# ember-routes-parser
 
 ## What it does
 
